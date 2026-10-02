@@ -1,0 +1,26 @@
+tools:
+
+  database:
+    description: "Customer database operations"
+
+    actions:
+      - read
+      - search
+      - get_balance
+      - update_customer
+
+
+  payment:
+    description: "Financial operations"
+
+    actions:
+      - transfer_money
+      - refund_money
+
+
+  email:
+    description: "Email operations"
+
+    actions:
+      - send_internal_email
+      - send_external_email

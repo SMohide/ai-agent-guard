@@ -1,0 +1,2566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AI Agent Guard</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        /* =========================
+           APP
+        ========================= */
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            width: 250px;
+
+            background: #111827;
+
+            color: white;
+
+            padding: 24px 14px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 0 10px;
+
+            margin-bottom: 35px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+
+            border-radius: 10px;
+
+            background: #2563eb;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 800;
+        }
+
+        .brand-text h2 {
+            font-size: 16px;
+        }
+
+        .brand-text span {
+            color: #9ca3af;
+            font-size: 11px;
+        }
+
+        .nav-title {
+            color: #64748b;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            margin: 25px 12px 8px;
+        }
+
+        .nav-item {
+            width: 100%;
+
+            border: none;
+
+            background: transparent;
+
+            color: #cbd5e1;
+
+            text-align: left;
+
+            padding: 11px 13px;
+
+            border-radius: 8px;
+
+            margin-bottom: 4px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #1e293b;
+            color: white;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+
+            width: calc(100% - 250px);
+
+            padding: 30px 35px;
+        }
+
+        .topbar {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            font-size: 27px;
+            margin-bottom: 5px;
+        }
+
+        .page-title p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .status {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            background: white;
+
+            border: 1px solid #e5e7eb;
+
+            padding: 8px 14px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+        }
+
+        /* =========================
+           SECTIONS
+        ========================= */
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 18px;
+
+            margin-bottom: 22px;
+        }
+
+        .stat-card,
+        .card {
+            background: white;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 12px;
+
+            padding: 21px;
+        }
+
+        .stat-label {
+            color: #64748b;
+
+            font-size: 13px;
+
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+
+            font-weight: 700;
+        }
+
+        .stat-description {
+            color: #94a3b8;
+
+            font-size: 12px;
+
+            margin-top: 5px;
+        }
+
+        .allow {
+            color: #16a34a;
+        }
+
+        .block {
+            color: #dc2626;
+        }
+
+        .human {
+            color: #d97706;
+        }
+
+        .content-grid {
+            display: grid;
+
+            grid-template-columns:
+                1.2fr 0.8fr;
+
+            gap: 22px;
+        }
+
+        .card-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .card-header span {
+            color: #64748b;
+
+            font-size: 12px;
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .form-grid {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 7px;
+        }
+
+        .full {
+            grid-column: span 2;
+        }
+
+        label {
+            color: #475569;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+
+            padding: 11px 12px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            background: white;
+
+            font-size: 14px;
+
+            outline: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(37, 99, 235, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+
+            resize: vertical;
+        }
+
+        .button-row {
+            display: flex;
+
+            gap: 9px;
+
+            flex-wrap: wrap;
+
+            margin-top: 18px;
+        }
+
+        button.action {
+            border: none;
+
+            border-radius: 8px;
+
+            padding: 11px 17px;
+
+            cursor: pointer;
+
+            font-weight: 600;
+
+            font-size: 13px;
+        }
+
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .primary:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .secondary:hover {
+            background: #e2e8f0;
+        }
+
+        /* =========================
+           DECISION
+        ========================= */
+
+        .decision-box {
+            background: #f8fafc;
+
+            border-radius: 10px;
+
+            padding: 18px;
+
+            min-height: 180px;
+        }
+
+        .decision-main {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-bottom: 18px;
+        }
+
+        .decision-label {
+            color: #64748b;
+
+            font-size: 11px;
+        }
+
+        .decision-value {
+            font-size: 25px;
+
+            font-weight: 800;
+
+            margin-top: 5px;
+        }
+
+        .risk {
+            text-align: right;
+        }
+
+        .risk-number {
+            font-size: 27px;
+
+            font-weight: 800;
+        }
+
+        .risk-label {
+            color: #64748b;
+
+            font-size: 10px;
+        }
+
+        .reason {
+            color: #475569;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+        .action-id {
+            color: #94a3b8;
+
+            font-size: 10px;
+
+            font-family: monospace;
+
+            margin-top: 12px;
+        }
+
+        /* =========================
+           CHECKS
+        ========================= */
+
+        .checks {
+            margin-top: 20px;
+        }
+
+        .check-row {
+            display: flex;
+
+            justify-content: space-between;
+
+            padding: 12px 0;
+
+            border-bottom: 1px solid #f1f5f9;
+
+            font-size: 13px;
+        }
+
+        .check-status {
+            font-weight: 600;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+
+            color: #64748b;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            padding: 12px;
+
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 14px 12px;
+
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .badge {
+            display: inline-block;
+
+            padding: 4px 8px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .badge.allow {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.block {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge.human {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* =========================
+           INFO
+        ========================= */
+
+        .info-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 18px;
+        }
+
+        .info-item {
+            border: 1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            padding: 18px;
+        }
+
+        .info-item h3 {
+            font-size: 14px;
+
+            margin-bottom: 8px;
+        }
+
+        .info-item p {
+            color: #64748b;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+        pre {
+            background: #0f172a;
+
+            color: #e2e8f0;
+
+            padding: 18px;
+
+            border-radius: 8px;
+
+            overflow-x: auto;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media(max-width: 1000px) {
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media(max-width: 700px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+
+                width: 100%;
+
+                padding: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: span 1;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =====================================
+         SIDEBAR
+    ====================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                AG
+            </div>
+
+            <div class="brand-text">
+
+                <h2>AI Agent Guard</h2>
+
+                <span>
+                    Security Gateway
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="nav-title">
+            Monitor
+        </div>
+
+
+        <button
+            class="nav-item active"
+            data-page="dashboard"
+        >
+            ◉ Dashboard
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-page="activity"
+        >
+            ◈ Agent Activity
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-page="approvals"
+        >
+            ◇ Approvals
+        </button>
+
+
+        <div class="nav-title">
+            Security
+        </div>
+
+
+        <button
+            class="nav-item"
+            data-page="policies"
+        >
+            ⛨ Policies
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-page="threats"
+        >
+            ⚠ Threat Detection
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-page="audit"
+        >
+            ◫ Audit Logs
+        </button>
+
+
+        <div class="nav-title">
+            System
+        </div>
+
+
+        <button
+            class="nav-item"
+            data-page="settings"
+        >
+            ⚙ Settings
+        </button>
+
+    </aside>
+
+
+    <!-- =====================================
+         MAIN
+    ====================================== -->
+
+    <main class="main">
+
+
+        <div class="topbar">
+
+            <div class="page-title">
+
+                <h1 id="pageTitle">
+                    Security Dashboard
+                </h1>
+
+                <p id="pageDescription">
+                    Monitor and control autonomous AI agent actions.
+                </p>
+
+            </div>
+
+
+            <div class="status">
+
+                <span class="status-dot"></span>
+
+                Guard Online
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================
+             DASHBOARD
+        ================================== -->
+
+        <section
+            id="page-dashboard"
+            class="page active"
+        >
+
+
+            <div class="stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Total Requests
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="totalRequests"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Agent actions evaluated
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Allowed
+                    </div>
+
+                    <div
+                        class="stat-value allow"
+                        id="allowedRequests"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Safe actions
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Blocked
+                    </div>
+
+                    <div
+                        class="stat-value block"
+                        id="blockedRequests"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Unsafe actions
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Human Review
+                    </div>
+
+                    <div
+                        class="stat-value human"
+                        id="humanRequests"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Approval required
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-grid">
+
+
+                <!-- ACTION TESTER -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h2>
+                            Agent Action Tester
+                        </h2>
+
+                        <span>
+                            Send an action through the Guard
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Agent
+                            </label>
+
+                            <select id="agentId">
+
+                                <option value="finance-agent-01">
+                                    finance-agent-01
+                                </option>
+
+                                <option value="loan-agent-01">
+                                    loan-agent-01
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                User ID
+                            </label>
+
+                            <input
+                                id="userId"
+                                value="user-123"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Tool
+                            </label>
+
+                            <select id="tool">
+
+                                <option value="database">
+                                    database
+                                </option>
+
+                                <option value="payment">
+                                    payment
+                                </option>
+
+                                <option value="email">
+                                    email
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Action
+                            </label>
+
+                            <select id="action">
+
+                                <option value="get_balance">
+                                    get_balance
+                                </option>
+
+                                <option value="read">
+                                    read
+                                </option>
+
+                                <option value="search">
+                                    search
+                                </option>
+
+                                <option value="transfer_money">
+                                    transfer_money
+                                </option>
+
+                                <option value="refund_money">
+                                    refund_money
+                                </option>
+
+                                <option value="send_internal_email">
+                                    send_internal_email
+                                </option>
+
+                                <option value="send_external_email">
+                                    send_external_email
+                                </option>
+
+                                <option value="update_customer">
+                                    update_customer
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group full">
+
+                            <label>
+                                Parameters (JSON)
+                            </label>
+
+                            <textarea id="parameters">{
+    "customer_id": "CUST001"
+}</textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="button-row">
+
+                        <button
+                            class="action primary"
+                            onclick="evaluateAction()"
+                        >
+                            Evaluate Action
+                        </button>
+
+
+                        <button
+                            class="action secondary"
+                            onclick="loadAllowedExample()"
+                        >
+                            Allowed Example
+                        </button>
+
+
+                        <button
+                            class="action secondary"
+                            onclick="loadBlockedExample()"
+                        >
+                            Blocked Example
+                        </button>
+
+
+                        <button
+                            class="action secondary"
+                            onclick="loadHumanExample()"
+                        >
+                            Human Approval
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DECISION -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h2>
+                            Guard Decision
+                        </h2>
+
+                        <span>
+                            Latest evaluation
+                        </span>
+
+                    </div>
+
+
+                    <div class="decision-box">
+
+                        <div class="decision-main">
+
+                            <div>
+
+                                <div class="decision-label">
+                                    DECISION
+                                </div>
+
+                                <div
+                                    id="decisionValue"
+                                    class="decision-value"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div class="risk">
+
+                                <div
+                                    id="riskNumber"
+                                    class="risk-number"
+                                >
+                                    —
+                                </div>
+
+                                <div class="risk-label">
+                                    RISK SCORE
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="decisionReason"
+                            class="reason"
+                        >
+                            Submit an agent action to see the Guard's decision.
+                        </div>
+
+
+                        <div
+                            id="actionId"
+                            class="action-id"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="checks">
+
+                        <div class="check-row">
+
+                            <span>
+                                Identity
+                            </span>
+
+                            <span
+                                id="identityCheck"
+                                class="check-status"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="check-row">
+
+                            <span>
+                                Permissions
+                            </span>
+
+                            <span
+                                id="permissionCheck"
+                                class="check-status"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="check-row">
+
+                            <span>
+                                Prompt Injection
+                            </span>
+
+                            <span
+                                id="injectionCheck"
+                                class="check-status"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="check-row">
+
+                            <span>
+                                Risk Engine
+                            </span>
+
+                            <span
+                                id="riskCheck"
+                                class="check-status"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             ACTIVITY
+        ================================== -->
+
+        <section
+            id="page-activity"
+            class="page"
+        >
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Agent Activity
+                    </h2>
+
+                    <span>
+                        All actions evaluated in this session
+                    </span>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Agent</th>
+                                <th>User</th>
+                                <th>Tool</th>
+                                <th>Action</th>
+                                <th>Risk</th>
+                                <th>Decision</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="activityTable">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             APPROVALS
+        ================================== -->
+
+        <section
+            id="page-approvals"
+            class="page"
+        >
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Human Approvals
+                    </h2>
+
+                    <span>
+                        High-risk actions waiting for review
+                    </span>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Action ID</th>
+                                <th>Agent</th>
+                                <th>Action</th>
+                                <th>Risk</th>
+                                <th>Status</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="approvalTable">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             POLICIES
+        ================================== -->
+
+        <section
+            id="page-policies"
+            class="page"
+        >
+
+            <div class="info-grid">
+
+
+                <div class="info-item">
+
+                    <h3>
+                        finance-agent-01
+                    </h3>
+
+                    <p>
+                        Role: Finance
+                        <br><br>
+
+                        Allowed tools:
+                        database, payment, email
+
+                        <br><br>
+
+                        Human approval:
+                        transactions above ₹10,000
+                    </p>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <h3>
+                        loan-agent-01
+                    </h3>
+
+                    <p>
+                        Role: Loan Processing
+                        <br><br>
+
+                        Allowed tools:
+                        database
+
+                        <br><br>
+
+                        Payment and email:
+                        blocked
+                    </p>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <h3>
+                        Default Security Policy
+                    </h3>
+
+                    <p>
+                        Unknown agents are denied.
+                        Unknown tools are denied.
+                        Unknown actions are denied.
+                        High-risk actions require additional controls.
+                    </p>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <h3>
+                        Risk Thresholds
+                    </h3>
+
+                    <p>
+                        0–69 → Allow
+                        <br>
+                        70–89 → Human Approval
+                        <br>
+                        90–100 → Block
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             THREATS
+        ================================== -->
+
+        <section
+            id="page-threats"
+            class="page"
+        >
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Threat Detection
+                    </h2>
+
+                    <span>
+                        Detected security events
+                    </span>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Time</th>
+                                <th>Agent</th>
+                                <th>Threat</th>
+                                <th>Severity</th>
+                                <th>Action</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="threatTable">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             AUDIT
+        ================================== -->
+
+        <section
+            id="page-audit"
+            class="page"
+        >
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Audit Logs
+                    </h2>
+
+                    <span>
+                        Security event history
+                    </span>
+
+                </div>
+
+
+                <pre id="auditLog">
+No events yet.
+                </pre>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             SETTINGS
+        ================================== -->
+
+        <section
+            id="page-settings"
+            class="page"
+        >
+
+            <div class="info-grid">
+
+
+                <div class="info-item">
+
+                    <h3>
+                        Guard Status
+                    </h3>
+
+                    <p>
+                        ● Online
+                        <br><br>
+
+                        Environment:
+                        Development
+
+                        <br><br>
+
+                        API:
+                        http://127.0.0.1:8000
+                    </p>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <h3>
+                        Security Mode
+                    </h3>
+
+                    <p>
+                        Fail-safe mode:
+                        Enabled
+
+                        <br><br>
+
+                        Unknown actions:
+                        Blocked
+
+                        <br><br>
+
+                        High-risk actions:
+                        Human approval
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+    /* =========================================
+       STATE
+    ========================================= */
+
+    let totalRequests = 0;
+
+    let allowedRequests = 0;
+
+    let blockedRequests = 0;
+
+    let humanRequests = 0;
+
+    let activity = [];
+
+    let approvals = [];
+
+    let threats = [];
+
+    let auditLogs = [];
+
+
+    /* =========================================
+       SIDEBAR NAVIGATION
+    ========================================= */
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const page =
+                        button.dataset.page;
+
+                    showPage(page);
+
+                }
+            );
+
+        });
+
+
+    function showPage(page) {
+
+        document
+            .querySelectorAll(".page")
+            .forEach(section => {
+
+                section.classList.remove(
+                    "active"
+                );
+
+            });
+
+
+        const target =
+            document.getElementById(
+                "page-" + page
+            );
+
+
+        if (target) {
+
+            target.classList.add(
+                "active"
+            );
+
+        }
+
+
+        document
+            .querySelectorAll(".nav-item")
+            .forEach(item => {
+
+                item.classList.remove(
+                    "active"
+                );
+
+            });
+
+
+        const selected =
+            document.querySelector(
+                `[data-page="${page}"]`
+            );
+
+
+        if (selected) {
+
+            selected.classList.add(
+                "active"
+            );
+
+        }
+
+
+        const titles = {
+
+            dashboard: [
+                "Security Dashboard",
+                "Monitor and control autonomous AI agent actions."
+            ],
+
+            activity: [
+                "Agent Activity",
+                "View every action evaluated by the Guard."
+            ],
+
+            approvals: [
+                "Human Approvals",
+                "Review high-risk actions."
+            ],
+
+            policies: [
+                "Security Policies",
+                "View agent permissions and risk rules."
+            ],
+
+            threats: [
+                "Threat Detection",
+                "Monitor detected AI security threats."
+            ],
+
+            audit: [
+                "Audit Logs",
+                "Complete security event history."
+            ],
+
+            settings: [
+                "Settings",
+                "Guard configuration and system status."
+            ]
+
+        };
+
+
+        if (titles[page]) {
+
+            document
+                .getElementById(
+                    "pageTitle"
+                )
+                .textContent =
+                titles[page][0];
+
+
+            document
+                .getElementById(
+                    "pageDescription"
+                )
+                .textContent =
+                titles[page][1];
+
+        }
+
+    }
+
+
+    /* =========================================
+       EVALUATE ACTION
+    ========================================= */
+
+    async function evaluateAction() {
+
+        const agentId =
+            document.getElementById(
+                "agentId"
+            ).value;
+
+
+        const userId =
+            document.getElementById(
+                "userId"
+            ).value;
+
+
+        const tool =
+            document.getElementById(
+                "tool"
+            ).value;
+
+
+        const action =
+            document.getElementById(
+                "action"
+            ).value;
+
+
+        let parameters;
+
+
+        try {
+
+            parameters =
+                JSON.parse(
+                    document.getElementById(
+                        "parameters"
+                    ).value
+                );
+
+        }
+
+        catch {
+
+            alert(
+                "Parameters must be valid JSON."
+            );
+
+            return;
+
+        }
+
+
+        const payload = {
+
+            agent_id: agentId,
+
+            user_id: userId,
+
+            tool: tool,
+
+            action: action,
+
+            parameters: parameters
+
+        };
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/v1/agent/action",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
+
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    result.detail ||
+                    "Request failed"
+                );
+
+            }
+
+
+            displayDecision(
+                result
+            );
+
+
+            recordActivity(
+                agentId,
+                userId,
+                tool,
+                action,
+                result,
+                parameters
+            );
+
+
+        }
+
+        catch (error) {
+
+            alert(
+                "Guard API error: " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    /* =========================================
+       DISPLAY DECISION
+    ========================================= */
+
+    function displayDecision(result) {
+
+        const decision =
+            document.getElementById(
+                "decisionValue"
+            );
+
+
+        decision.textContent =
+            result.decision;
+
+
+        decision.className =
+            "decision-value";
+
+
+        if (
+            result.decision === "ALLOW"
+        ) {
+
+            decision.classList.add(
+                "allow"
+            );
+
+        }
+
+        else if (
+            result.decision === "BLOCK"
+        ) {
+
+            decision.classList.add(
+                "block"
+            );
+
+        }
+
+        else {
+
+            decision.classList.add(
+                "human"
+            );
+
+        }
+
+
+        document.getElementById(
+            "riskNumber"
+        ).textContent =
+            result.risk_score;
+
+
+        document.getElementById(
+            "decisionReason"
+        ).textContent =
+            result.reason;
+
+
+        document.getElementById(
+            "actionId"
+        ).textContent =
+            "Action ID: " +
+            result.action_id;
+
+
+        setCheck(
+            "identityCheck",
+            "PASSED"
+        );
+
+
+        setCheck(
+            "permissionCheck",
+            result.decision === "BLOCK"
+                ? "FAILED / BLOCKED"
+                : "PASSED"
+        );
+
+
+        const injectionDetected =
+            result.reason
+                .toLowerCase()
+                .includes(
+                    "prompt injection"
+                );
+
+
+        setCheck(
+            "injectionCheck",
+            injectionDetected
+                ? "DETECTED"
+                : "PASSED"
+        );
+
+
+        setCheck(
+            "riskCheck",
+            result.risk_score >= 70
+                ? "HIGH RISK"
+                : "PASSED"
+        );
+
+    }
+
+
+    function setCheck(
+        id,
+        value
+    ) {
+
+        const element =
+            document.getElementById(id);
+
+
+        element.textContent =
+            value;
+
+
+        if (
+            value === "PASSED"
+        ) {
+
+            element.className =
+                "check-status allow";
+
+        }
+
+        else {
+
+            element.className =
+                "check-status human";
+
+        }
+
+    }
+
+
+    /* =========================================
+       RECORD ACTIVITY
+    ========================================= */
+
+    function recordActivity(
+        agent,
+        user,
+        tool,
+        action,
+        result,
+        parameters
+    ) {
+
+        totalRequests++;
+
+
+        if (
+            result.decision === "ALLOW"
+        ) {
+
+            allowedRequests++;
+
+        }
+
+        else if (
+            result.decision === "BLOCK"
+        ) {
+
+            blockedRequests++;
+
+        }
+
+        else {
+
+            humanRequests++;
+
+
+            approvals.unshift({
+
+                id:
+                    result.action_id,
+
+                agent,
+
+                action,
+
+                risk:
+                    result.risk_score,
+
+                status:
+                    "PENDING"
+
+            });
+
+        }
+
+
+        const event = {
+
+            time:
+                new Date()
+                    .toLocaleTimeString(),
+
+            agent,
+
+            user,
+
+            tool,
+
+            action,
+
+            risk:
+                result.risk_score,
+
+            decision:
+                result.decision,
+
+            actionId:
+                result.action_id,
+
+            parameters
+
+        };
+
+
+        activity.unshift(
+            event
+        );
+
+
+        auditLogs.unshift(
+            event
+        );
+
+
+        if (
+            result.reason
+                .toLowerCase()
+                .includes(
+                    "prompt injection"
+                )
+        ) {
+
+            threats.unshift({
+
+                time:
+                    event.time,
+
+                agent,
+
+                threat:
+                    "Prompt Injection",
+
+                severity:
+                    "HIGH",
+
+                action
+
+            });
+
+        }
+
+
+        updateStats();
+
+        renderActivity();
+
+        renderApprovals();
+
+        renderThreats();
+
+        renderAudit();
+
+    }
+
+
+    /* =========================================
+       STATS
+    ========================================= */
+
+    function updateStats() {
+
+        document.getElementById(
+            "totalRequests"
+        ).textContent =
+            totalRequests;
+
+
+        document.getElementById(
+            "allowedRequests"
+        ).textContent =
+            allowedRequests;
+
+
+        document.getElementById(
+            "blockedRequests"
+        ).textContent =
+            blockedRequests;
+
+
+        document.getElementById(
+            "humanRequests"
+        ).textContent =
+            humanRequests;
+
+    }
+
+
+    /* =========================================
+       ACTIVITY TABLE
+    ========================================= */
+
+    function renderActivity() {
+
+        const table =
+            document.getElementById(
+                "activityTable"
+            );
+
+
+        if (!activity.length) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        No activity yet.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        table.innerHTML =
+            activity.map(
+                item => `
+
+                <tr>
+
+                    <td>
+                        ${item.agent}
+                    </td>
+
+                    <td>
+                        ${item.user}
+                    </td>
+
+                    <td>
+                        ${item.tool}
+                    </td>
+
+                    <td>
+                        ${item.action}
+                    </td>
+
+                    <td>
+                        ${item.risk}
+                    </td>
+
+                    <td>
+                        <span
+                            class="badge
+                            ${
+                                item.decision ===
+                                "ALLOW"
+                                    ? "allow"
+                                    :
+                                item.decision ===
+                                "BLOCK"
+                                    ? "block"
+                                    :
+                                    "human"
+                            }"
+                        >
+                            ${item.decision}
+                        </span>
+                    </td>
+
+                </tr>
+
+            `
+            ).join("");
+
+    }
+
+
+    /* =========================================
+       APPROVALS
+    ========================================= */
+
+    function renderApprovals() {
+
+        const table =
+            document.getElementById(
+                "approvalTable"
+            );
+
+
+        if (!approvals.length) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        No pending approvals.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        table.innerHTML =
+            approvals.map(
+                item => `
+
+                <tr>
+
+                    <td>
+                        ${item.id}
+                    </td>
+
+                    <td>
+                        ${item.agent}
+                    </td>
+
+                    <td>
+                        ${item.action}
+                    </td>
+
+                    <td>
+                        ${item.risk}
+                    </td>
+
+                    <td>
+
+                        <span class="badge human">
+                            ${item.status}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `
+            ).join("");
+
+    }
+
+
+    /* =========================================
+       THREATS
+    ========================================= */
+
+    function renderThreats() {
+
+        const table =
+            document.getElementById(
+                "threatTable"
+            );
+
+
+        if (!threats.length) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        No threats detected.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        table.innerHTML =
+            threats.map(
+                item => `
+
+                <tr>
+
+                    <td>
+                        ${item.time}
+                    </td>
+
+                    <td>
+                        ${item.agent}
+                    </td>
+
+                    <td>
+                        ${item.threat}
+                    </td>
+
+                    <td>
+
+                        <span class="badge block">
+                            ${item.severity}
+                        </span>
+
+                    </td>
+
+                    <td>
+                        ${item.action}
+                    </td>
+
+                </tr>
+
+            `
+            ).join("");
+
+    }
+
+
+    /* =========================================
+       AUDIT LOG
+    ========================================= */
+
+    function renderAudit() {
+
+        const element =
+            document.getElementById(
+                "auditLog"
+            );
+
+
+        if (!auditLogs.length) {
+
+            element.textContent =
+                "No events yet.";
+
+            return;
+
+        }
+
+
+        element.textContent =
+            JSON.stringify(
+                auditLogs,
+                null,
+                2
+            );
+
+    }
+
+
+    /* =========================================
+       EXAMPLES
+    ========================================= */
+
+    function loadAllowedExample() {
+
+        document.getElementById(
+            "agentId"
+        ).value =
+            "finance-agent-01";
+
+
+        document.getElementById(
+            "tool"
+        ).value =
+            "database";
+
+
+        document.getElementById(
+            "action"
+        ).value =
+            "get_balance";
+
+
+        document.getElementById(
+            "parameters"
+        ).value =
+`{
+    "customer_id": "CUST001"
+}`;
+
+    }
+
+
+    function loadBlockedExample() {
+
+        document.getElementById(
+            "agentId"
+        ).value =
+            "loan-agent-01";
+
+
+        document.getElementById(
+            "tool"
+        ).value =
+            "payment";
+
+
+        document.getElementById(
+            "action"
+        ).value =
+            "transfer_money";
+
+
+        document.getElementById(
+            "parameters"
+        ).value =
+`{
+    "amount": 5000,
+    "account": "1234567890"
+}`;
+
+    }
+
+
+    function loadHumanExample() {
+
+        document.getElementById(
+            "agentId"
+        ).value =
+            "finance-agent-01";
+
+
+        document.getElementById(
+            "tool"
+        ).value =
+            "payment";
+
+
+        document.getElementById(
+            "action"
+        ).value =
+            "transfer_money";
+
+
+        document.getElementById(
+            "parameters"
+        ).value =
+`{
+    "amount": 15000,
+    "account": "1234567890"
+}`;
+
+    }
+
+
+    /* =========================================
+       INITIAL RENDER
+    ========================================= */
+
+    renderActivity();
+
+    renderApprovals();
+
+    renderThreats();
+
+    renderAudit();
+
+</script>
+
+</body>
+
+</html>

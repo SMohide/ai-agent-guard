@@ -1,0 +1,11 @@
+default:
+
+  deny_unknown_agents: true
+
+  deny_unknown_tools: true
+
+  deny_unknown_actions: true
+
+  fail_safe: true
+
+  require_human_for_high_risk: true

@@ -1,0 +1,48 @@
+agents:
+
+  loan-agent-01:
+    role: loan_processing
+
+    allowed_tools:
+      - database
+      - document_reader
+
+    blocked_tools:
+      - payment
+      - email
+
+    allowed_actions:
+      database:
+        - read
+        - search
+        - get_balance
+
+    require_human_above: 0
+
+
+  finance-agent-01:
+    role: finance
+
+    allowed_tools:
+      - database
+      - payment
+      - email
+
+    blocked_tools: []
+
+    allowed_actions:
+      database:
+        - read
+        - search
+        - get_balance
+        - update_customer
+
+      payment:
+        - transfer_money
+        - refund_money
+
+      email:
+        - send_internal_email
+        - send_external_email
+
+    require_human_above: 10000
